@@ -8,6 +8,17 @@ Small Python script that generates interactive astronomical charts using `ephem`
 - Geocentric polar view
 - Heliocentric 3D view
 
+<details>
+  <summary>PLOT IMGs</summary>
+  
+<img width="1756" height="851" alt="Image" src="https://github.com/user-attachments/assets/2d28cf15-1755-4cb1-b97a-e36282f92cd9" />
+
+<img width="1756" height="851" alt="Image" src="https://github.com/user-attachments/assets/6be13e21-65ef-4ff1-8158-430235c925bf" />
+
+<img width="1756" height="851" alt="Image" src="https://github.com/user-attachments/assets/842b06e9-43ef-4bf3-b5b5-1f12d0956a0d" />
+
+</details>
+
 ## Requirements
 
 - Python 3.10+
