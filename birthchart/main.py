@@ -10,7 +10,10 @@ BODIES_CONFIG = {
     'Mars': ephem.Mars(), 'Jupiter': ephem.Jupiter(), 'Saturn': ephem.Saturn(),
     'Uranus': ephem.Uranus(), 'Neptune': ephem.Neptune(), 'Pluto': ephem.Pluto()
 }
-DEFAULT_NASC = '1999/03/12 00:00:00'
+DEFAULT_NASC = '2001/08/26 22:42:00'
+# Coordenadas fixas para Porto Alegre
+OBSERVER_LAT = '-30.0333'
+OBSERVER_LON = '-51.2300'
 
 # Cores otimizadas para alto contraste no fundo escuro
 COLOR_NASC = '#00FF41' # Verde Neon
@@ -63,14 +66,34 @@ class Heliocentric3DVisualizer(Visualizer):
 
 class GeocentricPolarVisualizer(Visualizer):
     def plot(self, fig, data_nasc, data_agora):
-        for data, name, color, sym in [(data_nasc, 'Birthchart', COLOR_NASC, 'circle'), (data_agora, 'Current', COLOR_AGORA, 'x')]:
-            longs = {}
+        obs = ephem.Observer()
+        obs.lat = OBSERVER_LAT
+        obs.lon = OBSERVER_LON
+        
+        for data, name, color, sym in [(data_nasc, 'Birthchart', COLOR_NASC, 'circle'), 
+                                      (data_agora, 'Current', COLOR_AGORA, 'x')]:
+            obs.date = data
+            longs = []
+            radii = []
+            labels = []
+            
             for n, b in BODIES_CONFIG.items():
-                b.compute(data)
-                longs[n] = np.degrees(ephem.Ecliptic(b).lon)
+                b.compute(obs)
+                # Longitude eclíptica para o eixo angular
+                longs.append(np.degrees(ephem.Ecliptic(b).lon))
+                # Distância geocêntrica normalizada (Log para compressão de escala)
+                # Adicionado pequeno epsilon para evitar log(0)
+                dist = float(b.earth_distance)
+                radii.append(np.log1p(dist)) 
+                labels.append(n)
+            
             fig.add_trace(go.Scatterpolar(
-                r=[1]*len(longs), theta=list(longs.values()), mode='markers+text', 
-                name=name, text=list(longs.keys()), marker=dict(size=12, color=color, symbol=sym)
+                r=radii, 
+                theta=longs, 
+                mode='markers+text', 
+                name=name, 
+                text=labels, 
+                marker=dict(size=10, color=color, symbol=sym)
             ))
 
 # --- MAIN ---
@@ -96,7 +119,7 @@ def main():
     elif isinstance(visualizer, Heliocentric3DVisualizer):
         fig.update_layout(**layout_common, scene=dict(bgcolor="black", xaxis=dict(gridcolor='#222'), yaxis=dict(gridcolor='#222'), zaxis=dict(gridcolor='#222')), title="Heliocentric 3D")
     else:
-        fig.update_layout(**layout_common, polar=dict(bgcolor="black", radialaxis=dict(gridcolor='#333'), angularaxis=dict(gridcolor='#333', rotation=90)), title="Geocentric Polar")
+        fig.update_layout(**layout_common, polar=dict(bgcolor="black", radialaxis=dict(gridcolor='#333'), angularaxis=dict(gridcolor='#333', rotation=90)), title="Geocentric Polar (Porto Alegre)")
     
     fig.show()
 
